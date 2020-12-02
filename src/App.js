@@ -4,6 +4,7 @@ import React, { Component } from 'react';
 import { ToDoBanner } from './TODOBANNER';
 import { ToDoRow } from './TODOROW';
 import { ToDoCreator } from './TODOCREATOR';
+import {VisibilityControl} from './VISIBILITYCONTROL2';
 export default class App extends Component {
   //  Above we have created a class called App the extends the functionality of the Component class
   //  The export keyword above makes the class available for use outside of the JS file where it is created
@@ -42,7 +43,7 @@ export default class App extends Component {
       todoList: this.state.todoList.map(
         bob => bob.action === checkedToDoItem.action ? { ...bob, done: !bob.done } : bob
       )
-    }
+    }, () => localStorage.setItem("storedToDoObject", JSON.stringify(this.state))
   );
 
   //  Feature 5d
@@ -50,27 +51,50 @@ export default class App extends Component {
   //  The "newToDoAction" parameter passed into the createNewTodoCallback method below comes from where the callback is initiated from- which is in the createNewTodo method of the ToDoCreator Component
   createNewToDoCallback = (newToDoAction) => {
     //  The if block below checks if the newly created todo item is NOT already in the list of todos.  If it is NOT already in the list then it adds it as below.  If it is in the list already there is no else block so nothing happens - this is not too user friendly but.... :)
-    if (!this.state.todoList.find(xyz => xyz.action === newToDoAction))
-    {
+    if (!this.state.todoList.find(xyz => xyz.action === newToDoAction)) {
       this.setState(
         {
           todoList: [
             ...this.state.todoList,
             {
-              action:newToDoAction, done: false // By default every new todo should not be done- in other words it's done property should have a value of false.
+              action: newToDoAction, done: false // By default every new todo should not be done- in other words it's done property should have a value of false.
             }
           ]
-        }
-      )
-    }
-}
+        }, () => localStorage.setItem("storedToDoObject", JSON.stringify(this.state))// end of setItem
+      )//end of setState
+    }// end of if block
+  }
 
-// Feature 5e
+  // Feature 5e
   //  The componentDidMount method below is a built in react method to handle logic for when the APP Component "mounts" or "loads"
-componentDidMount = () =>
-{
-  
-}
+  componentDidMount = () => {
+    localStorage.clear();
+
+    fetch("http://localhost:56881/api/todos?todoOwnerID=1")
+      .then(response => response.json())
+      .then((data) => {
+        console.log(JSON.stringify({ data }));
+
+        var apiList = [];
+        for (var i = 0; i < data.Data.length; i++) {
+          var isDone = true;
+          if (data.Data[i].Done === 0) {
+            isDone = false;
+          }
+          var element = { action: data.Data[i].acton, done: isDone };
+          apiList.push(element);
+        }
+        let storedData = localStorage.getItem("storedToDoObject");
+        this.setState(
+          storedData != null ? JSON.parse(storedData) :
+            {
+              todoOwner: data.Data[0].todoOwner,
+              todoList: apiList,
+              showCompleted: true // feature 8
+            }
+        );
+      });
+  }
 
   render = () =>
     <div>
@@ -97,7 +121,17 @@ componentDidMount = () =>
         </tbody>
       </table>
 
-      {/* Freatures 6 and 7*/}
+      {/*feature 8*/}
+      <div className = "bg-secondary text-white text-center p-2">
+        <VisibilityControl
+        description = "Completed Tasks"
+        isChecked = {this.state.showCompleted}
+        callback= {checked => this.setState({showCompleted: checked})}
+        />
+      </div>
+
+{/* Freatures 6 and 7*/}
+  {this.state.showCompleted &&
       <table className="table table-striped table-bordered">
         <thead>
           <th>Action</th>
@@ -107,7 +141,7 @@ componentDidMount = () =>
           {this.todoTableRows(true)}
         </tbody>
       </table>
-
+}
     </div>
 }// End of APP
 
