@@ -1,6 +1,7 @@
 import logo from './logo.svg';
 import './App.css';
 import React, {Component} from 'react';
+import {ToDoBanner} from './TODOBANNER';
 export default class App extends Component {
 //  Above we have created a class called App the extends the functionality of the Component class
 //  The export keyword above makes the class available for use outside of the JS file where it is created
@@ -18,6 +19,16 @@ this.state = {
   ]
 }
 }// End of Constructor
+render = () =>
+<div>
+  {/*Features 1 and 2*/}
+  <ToDoBanner
+
+  todoOwner = {this.state.todoOwner}
+  todoList = {this.state.todoList}
+
+/>
+</div>
 }// End of APP
 
 // function App() {
