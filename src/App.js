@@ -65,6 +65,17 @@ render = () =>
   </tbody>
 </table>
 
+{/* Freatures 6 and 7*/}
+<table className = "table table-striped table-bordered">
+  <thead>
+    <th>Action</th>
+    <th>Mark As NOT Complete</th>
+  </thead>
+  <tbody>
+    {this.todoTableRows(true)}
+  </tbody>
+</table>
+
 </div>
 }// End of APP
 
