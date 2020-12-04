@@ -62,6 +62,23 @@ export default class App extends Component {
           ]
         }, () => localStorage.setItem("storedToDoObject", JSON.stringify(this.state))// end of setItem
       )//end of setState
+       //Feature 5.f
+       var myHeaders = new Headers();
+myHeaders.append("Content-Type", "application/json");
+
+var raw = JSON.stringify({"todoOwnerID":1,"action":newToDoAction,"done":0});
+
+var requestOptions = {
+  method: 'POST',
+  headers: myHeaders,
+  body: raw,
+  redirect: 'follow'
+};
+
+fetch("http://localhost:56881/api/todos/CreateTodo", requestOptions)
+  .then(response => response.text())
+  .then(result => console.log(result))
+  .catch(error => console.log('error', error));
     }// end of if block
   }
 
@@ -70,7 +87,7 @@ export default class App extends Component {
   componentDidMount = () => {
     localStorage.clear();
 
-    fetch("http://localhost:56881/api/todos?todoOwnerID=1")
+    fetch("http://localhost:56881/api/todos/GetTodos?todoOwnerID=1")
       .then(response => response.json())
       .then((data) => {
         console.log(JSON.stringify({ data }));
@@ -81,7 +98,7 @@ export default class App extends Component {
           if (data.Data[i].Done === 0) {
             isDone = false;
           }
-          var element = { action: data.Data[i].acton, done: isDone };
+          var element = { action: data.Data[i].action, done: isDone, todoID: data.Data[i].todoID };
           apiList.push(element);
         }
         let storedData = localStorage.getItem("storedToDoObject");
@@ -115,6 +132,7 @@ export default class App extends Component {
         <thead>
           <th>Action</th>
           <th>Mark As Complete</th>
+          <th>Delete</th>
         </thead>
         <tbody>
           {this.todoTableRows(false)}
@@ -136,6 +154,7 @@ export default class App extends Component {
         <thead>
           <th>Action</th>
           <th>Mark As NOT Complete</th>
+          <th>Delete</th>
         </thead>
         <tbody>
           {this.todoTableRows(true)}
